@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.io.*;
 
 import java.net.*;
@@ -9,9 +10,11 @@ class ClientsReadThread extends Thread {
     private boolean success;
     private ArrayDeque<String> otherClients;
     private ObjectInputStream fromServer;
-    ClientsReadThread(ArrayDeque<String> otherClients, ObjectInputStream fromServer) {
+    JTextArea chat;
+    ClientsReadThread(ArrayDeque<String> otherClients, ObjectInputStream fromServer, JTextArea chat) {
         this.fromServer = fromServer;
         this.otherClients = otherClients;
+        this.chat = chat;
     }
 
     @Override
@@ -23,14 +26,17 @@ class ClientsReadThread extends Thread {
                 switch (command.command) {
                     case MESSAGE -> {
                         System.out.println(command.clientName+":"+command.parameter);
+                        chat.append(command.clientName+":"+command.parameter+"\n");
                     }
                     case LIST -> {
                         synchronized (this) {
                             otherClients = Stream.of(command.parameter.split("\n")).collect(Collectors.toCollection(ArrayDeque::new));
                             success = true;
                             notify();
-                            for (String a : otherClients)
+                            for (String a : otherClients) {
                                 System.out.println(a);
+                                chat.append(a+"\n");
+                            }
                         }
                     }
                     case SUCCESS -> {
@@ -56,61 +62,14 @@ class ClientsReadThread extends Thread {
         }
     }
 }
-class ClientsWrite {
+/*class ClientsWrite {
     public void Run() throws IOException, ClassNotFoundException {
-        Socket s = new Socket("127.0.0.1", 2048);
-        //OutputStreamWriter writer = new OutputStreamWriter(s.getOutputStream());
-        ObjectOutputStream writer = new ObjectOutputStream(s.getOutputStream());
-
-        BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
-        //BufferedReader reader = new BufferedReader(new InputStreamReader(s.getInputStream()));
-        ObjectInputStream reader = new ObjectInputStream(s.getInputStream());
-        String line = "";
-        String command = "";
-
-        ArrayDeque<String> otherClients = new ArrayDeque<>();
-        ClientsReadThread readThread = new ClientsReadThread(otherClients, reader);
-        readThread.start();
-        String username;
-        System.out.print("Введите имя: ");
-        username = consoleReader.readLine();
-        ChatComand registration = new ChatComand("login", username);
-        writer.writeObject(registration);
-        writer.flush();
-        //line = reader.readLine();
-        //ChatComand fromServer = (ChatComand) reader.readObject();
-        System.out.println("Получен ответ:" + line);
-
-
-        do {
-
-            System.out.print("Введите команду:");
-            command = consoleReader.readLine();
-            if (command.equalsIgnoreCase("exit")) break;
-
-            ChatComand chatComand = new ChatComand(command);
-            if (chatComand.command == CommandType.MESSAGE) {
-                System.out.print("Введите строку:");
-                line = consoleReader.readLine();
-                chatComand.setParameter(line);
-                //fromServer = (ChatComand) reader.readObject();
-
-            }
-            chatComand.setClientName(username);
-            writer.writeObject(chatComand);
-            writer.flush();
-            //line = reader.readLine();
-            ///fromServer = (ChatComand) reader.readObject();
-            //System.out.println("Получен ответ:" + fromServer.parameter);
-
-        } while (true);
-        writer.close();
     }
-}
+}*/
 
 public class TCPClient {
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws IOException {
         SwingClient swingClient = new SwingClient();
         swingClient.run();
 

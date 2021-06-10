@@ -103,7 +103,10 @@ class RequestProcessor implements Runnable {
             System.out.println("Получена строка:" + comand.parameter);
             username = comand.parameter;
             userlist.add(username);
-            writer.writeObject(new ChatComand("login", "successed"));
+            writer.writeObject(new ChatComand("success", "login"));
+            for (ChatComand iter : messages) {
+                writer.writeObject(iter);
+            }
             /*writer.write("ответ от:" + s.getLocalAddress() + ":" + s.getLocalPort()
                     + " для:" + s.getInetAddress() + ":" + s.getPort() + " : " + comand.parameter + "\n");
             writer.flush();*/
@@ -127,6 +130,11 @@ class RequestProcessor implements Runnable {
                         parameter.append(a).append("\n");
                     }
                     writer.writeObject(new ChatComand("list", parameter.toString()));
+                }
+                if (comand.command == CommandType.CONNECTION_CLOSE) {
+                    System.out.println(username+": "+comand.command);
+                    userlist.remove(username);
+                    Thread.currentThread().interrupt();
                 }
                 /*writer.write("ответ от:" + s.getLocalAddress() + ":" + s.getLocalPort()
                         + " для:" + s.getInetAddress() + ":" + s.getPort() + " : " + comand.parameter + "\n");

@@ -23,6 +23,8 @@ public class ChatComand implements Serializable {
             command = CommandType.LOGIN;
         if (type.equals("success"))
             command = CommandType.SUCCESS;
+        if (type.equals("close"))
+            command = CommandType.CONNECTION_CLOSE;
 
     }
     public ChatComand(String name, String parameter) {
@@ -34,6 +36,8 @@ public class ChatComand implements Serializable {
             command = CommandType.LOGIN;
         if (name.equals("success"))
             command = CommandType.SUCCESS;
+        if (name.equals("close"))
+            command = CommandType.CONNECTION_CLOSE;
 
         this.parameter = parameter;
     }
@@ -46,6 +50,8 @@ public class ChatComand implements Serializable {
             command = CommandType.LOGIN;
         if (name.equals("success"))
             command = CommandType.SUCCESS;
+        if (name.equals("close"))
+            command = CommandType.CONNECTION_CLOSE;
 
         this.parameter = parameter;
         this.clientName = clientName;
